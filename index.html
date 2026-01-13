@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="sq">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QR Generator</title>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.container {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  padding: 40px;
+  max-width: 480px;
+  width: 100%;
+}
+
+h2 {
+  color: #1a202c;
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.form-group {
+  margin-bottom: 24px;
+}
+
+label {
+  display: block;
+  color: #4a5568;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  text-align: left;
+}
+
+input[type="text"],
+input[type="file"],
+select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 15px;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+input[type="text"]:focus,
+select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+input[type="color"] {
+  width: 100%;
+  height: 48px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  cursor: pointer;
+  padding: 4px;
+}
+
+input[type="range"] {
+  width: calc(100% - 80px);
+  height: 6px;
+  border-radius: 3px;
+  background: #e2e8f0;
+  outline: none;
+  -webkit-appearance: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #667eea;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  background: #5568d3;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #667eea;
+  cursor: pointer;
+  border: none;
+}
+
+.size-control {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.size-value {
+  color: #667eea;
+  font-weight: 600;
+  font-size: 14px;
+  min-width: 60px;
+  text-align: right;
+}
+
+button {
+  width: 100%;
+  padding: 14px 24px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 8px;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+input[type="file"]::file-selector-button {
+  padding: 8px 16px;
+  background: #f7fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: #4a5568;
+  transition: all 0.2s ease;
+  margin-right: 12px;
+}
+
+input[type="file"]::file-selector-button:hover {
+  background: #edf2f7;
+}
+
+@media (max-width: 520px) {
+  .container {
+    padding: 24px;
+  }
+  
+  h2 {
+    font-size: 24px;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Krijo QR Code</h2>
+
+  <div class="form-group">
+    <label>Linku / Teksti</label>
+    <input type="text" id="data" placeholder="https://example.com">
+  </div>
+
+  <div class="form-group">
+    <label>Ngjyra e QR</label>
+    <input type="color" id="color" value="#000000">
+  </div>
+
+  <div class="form-group">
+    <label>Foto / Logo (opsionale)</label>
+    <input type="file" id="logo" accept="image/*">
+  </div>
+
+  <div class="form-group">
+    <label>Madhësia e QR</label>
+    <div class="size-control">
+      <input type="range" id="size" min="250" max="600" value="380">
+      <span class="size-value" id="sizeValue">380px</span>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label>Forma e QR</label>
+    <select id="shape">
+      <option value="rounded">Rounded</option>
+      <option value="square">Square</option>
+      <option value="classy">Classy</option>
+    </select>
+  </div>
+
+  <button onclick="generate()">Gjenero QR</button>
+</div>
+
+<script>
+document.getElementById('size').addEventListener('input', function() {
+  document.getElementById('sizeValue').textContent = this.value + 'px';
+});
+</script>
+<script src="script.js"></script>
+
+</body>
+</html>
