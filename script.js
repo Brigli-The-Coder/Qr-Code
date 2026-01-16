@@ -1,3 +1,7 @@
+/* =========================
+   QR GENERATOR - MAIN PAGE
+   ========================= */
+
 function generate() {
   const data = document.getElementById("data").value;
   const color = document.getElementById("color").value;
@@ -10,42 +14,49 @@ function generate() {
     return;
   }
 
-  const reader = new FileReader();
+  // Nëse ka logo
+  if (logoInput.files.length > 0) {
+    const reader = new FileReader();
 
-  reader.onload = function () {
+    reader.onload = function () {
+      redirectToResult(reader.result);
+    };
+
+    reader.readAsDataURL(logoInput.files[0]);
+  }
+  // Nëse nuk ka logo
+  else {
+    redirectToResult("");
+  }
+
+  function redirectToResult(logo) {
     const settings = {
-      data,
-      color,
-      size,
-      shape,
-      logo: reader.result || ""
+      data: data,
+      color: color,
+      size: size,
+      shape: shape,
+      logo: logo
     };
 
     const encoded = encodeURIComponent(JSON.stringify(settings));
     window.location.href = "result.html?qr=" + encoded;
-  };
-
-  if (logoInput.files.length > 0) {
-    reader.readAsDataURL(logoInput.files[0]);
-  } else {
-    reader.onload();
   }
 }
+
+/* =========================
+   QR RENDER - RESULT PAGE
+   ========================= */
 
 function renderQR() {
   const params = new URLSearchParams(window.location.search);
   const raw = params.get("qr");
+
   if (!raw) return;
 
   const settings = JSON.parse(decodeURIComponent(raw));
 
-  const logoTooBigWarning =
-    settings.logo && settings.size < 350
-      ? "⚠️ Logo + QR i vogël = rrezik mos-leximi"
-      : "";
-
-  if (logoTooBigWarning) {
-    alert(logoTooBigWarning);
+  if (settings.logo && Number(settings.size) < 350) {
+    alert("⚠️ Logo + QR i vogël mund të mos lexohet mirë");
   }
 
   const qrCode = new QRCodeStyling({
@@ -75,7 +86,46 @@ function renderQR() {
   });
 
   const qrContainer = document.getElementById("qr");
+  if (!qrContainer) return;
+
   qrContainer.innerHTML = "";
+  qrCode.append(qrContainer);
+
+  const downloadPNG = document.getElementById("download-png");
+  const downloadSVG = document.getElementById("download-svg");
+
+  if (downloadPNG) {
+    downloadPNG.onclick = () => {
+      qrCode.download({ name: "qr-code", extension: "png" });
+    };
+  }
+
+  if (downloadSVG) {
+    downloadSVG.onclick = () => {
+      qrCode.download({ name: "qr-code", extension: "svg" });
+    };
+  }
+}
+
+/* =========================
+   INIT
+   ========================= */
+
+document.addEventListener("DOMContentLoaded", () => {
+  if (document.getElementById("qr")) {
+    renderQR();
+  }
+
+  const sizeInput = document.getElementById("size");
+  const sizeValue = document.getElementById("sizeValue");
+
+  if (sizeInput && sizeValue) {
+    sizeValue.innerText = sizeInput.value + "px";
+    sizeInput.oninput = () => {
+      sizeValue.innerText = sizeInput.value + "px";
+    };
+  }
+});  qrContainer.innerHTML = "";
   qrCode.append(qrContainer);
 
   document.getElementById("download-png").onclick = () => {
@@ -100,3 +150,4 @@ document.addEventListener("DOMContentLoaded", () => {
       (sizeValue.innerText = sizeInput.value + "px");
   }
 });
+
